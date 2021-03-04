@@ -1,0 +1,620 @@
+package logic;
+
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * the main functionality of game is implemented in this class. process of
+ * starting the game , filling the stack and then next box, selecting the domino
+ * form next box, laying on the board, and the when game ends the count points
+ * is called and show in log.
+ *
+ * @author kobra
+ */
+public class Game implements GUIToGame {
+
+    private Domino[] nextBox; // each player select their dominos from this box
+    private Choose[] nextChoose;//store the choosed domino in next box
+    private Choose[] currChoose; // store the current domino and current player and also the round
+
+    /**
+     * the stack with all dominos at the beginning.
+     */
+    private final List<Domino> stack;
+
+    /**
+     * the current player
+     */
+    private int currPlayer;
+    /**
+     * array of all players who wants to play this game.
+     */
+    private Players[] players;
+    /**
+     * the current domino
+     */
+    private Domino currDomino;
+    /**
+     * the size of the selection box
+     */
+    private int selectionSize;
+    /**
+     * for saving the game is created
+     */
+    private Save save;
+    /**
+     * for loading the game is created
+     */
+    private Load load;
+
+    /**
+     * the gui to display on
+     */
+    private GUIConnector gui;
+
+    private Log logger;
+
+    /**
+     * gets all players and return them
+     *
+     * @return an array of players
+     */
+    Players[] getPlayers() {
+        return players;
+    }
+
+    /**
+     * creates a game. this is the main constructor game
+     *
+     * @param gui gui to display on
+     * @param sizeX x-size of the board
+     * @param sizeY y-size of the board
+     * @param numOfHuman
+     * @param numOfBots
+     */
+    public Game(GUIConnector gui, int sizeX, int sizeY, int numOfHuman, int numOfBots) {
+        this.gui = gui;
+        this.selectionSize = numOfBots + numOfHuman;
+        this.nextBox = new Domino[selectionSize];
+        this.stack = new LinkedList<>();
+        this.currDomino = null;
+        Domino.fill(stack);// fill the stack
+        int plyerId = 0;//for keeping the counter of players 
+        this.nextChoose = new Choose[nextBox.length]; //array of choosed dominos by bots
+        this.currChoose = new Choose[nextBox.length];
+        this.players = new Players[selectionSize];
+        this.currPlayer = 0;
+        for (int i = 0; i < numOfHuman; i++) {// at first in players array creates human players ant then bot players are created
+            players[i] = new Human(this.gui, "" + i, sizeX, sizeY, i);
+            plyerId = i;
+        }
+        for (int k = plyerId + 1; k < (numOfBots + numOfHuman); k++) {
+            players[k] = new Bot(this.gui, "" + k, sizeX, sizeY, k);
+        }
+        fillNextBox();
+        for (int i = 0; i < nextChoose.length; i++) {
+            nextChoose[i] = new Choose(null, null);
+            currChoose[i] = new Choose(new Domino(null), players[i]);
+        }
+        this.logger = new Log("log.txt");
+    }
+
+    /**
+     * for testing:used in load method
+     *
+     *
+     * @param gui
+     * @param fields
+     * @param currentBox
+     * @param nextBox
+     * @param currentId
+     * @param nextId
+     * @param stack
+     */
+    public Game(GUIConnector gui, Field[] fields, Domino[] currentBox, Domino[] nextBox,
+            int[] currentId, int[] nextId, List<Domino> stack) {
+
+        // this.currentBox = new Domino[selectionSize];
+        this.gui = gui;
+        this.stack = stack;
+        this.currDomino = null;
+        this.nextBox = nextBox;
+        this.currChoose = new Choose[nextBox.length];
+        this.nextChoose = new Choose[nextBox.length];
+        this.players = new Players[nextBox.length];
+        boolean currPl = false;
+        for (int i = 0; i < currentBox.length; i++) {
+            if (currentBox[i] == null) {
+                currPlayer++;
+            }
+        }
+
+        for (int i = 0; i < currChoose.length; i++) {
+            this.gui.setToCurrentBox(i, null, i);
+            this.gui.setToNextBox(i, null);
+        }
+
+        for (int i = 0; i < players.length; i++) {
+            if (i == 0) {
+                this.players[i] = new Human(this.gui, "" + i, fields[i], i);
+            } else {
+                this.players[i] = new Bot(this.gui, "" + i, fields[i], i);
+            }
+        }
+        int counter = 0;
+
+        for (int i = 0; i < currChoose.length; i++) {
+
+            if (i < currPlayer) {
+                currChoose[i] = new Choose(new Domino(null), null);
+            } else {
+                currChoose[i] = new Choose(currentBox[counter], this.players[currentId[i]]);
+                counter++;
+
+            }
+
+            this.nextBox[i] = nextBox[i];
+            if (nextId[i] >= 0) {
+
+                nextChoose[i] = new Choose(nextBox[i], this.players[nextId[i]]);
+            } else {
+                nextChoose[i] = new Choose(null, null);
+            }
+
+            this.gui.updateGrid(this.players[i].getField(), this.players[i].getId());
+            if (nextId[i] < 0) {
+                this.gui.setToNextBox(i, nextBox[i]);
+            } else {
+                this.gui.setToNextBox(i, null);
+                this.nextBox[i] = null;
+
+            }
+
+            if (currChoose[i].getPlayer() != null) {
+                this.gui.setToCurrentBox(i, currChoose[i].getDomino(), currChoose[i].getPlayer().getId());
+            }
+        }
+
+        this.logger = new Log("log.txt");
+
+    }
+
+    /**
+     * for testing: string constructor for loading game
+     *
+     * @param nextBox
+     * @param currBox
+     * @param board
+     * @param bag
+     */
+    public Game(String board, String nextBox, String currBox, String bag) {
+        //this(gui, board.split("\n")[0].length(), board.split("\n").length, 0, 0);
+        this.stack = new LinkedList<>();
+        for (int i = 0; i < this.players.length; i++) {
+        }
+    }
+
+    /**
+     * gets values on board
+     *
+     * @return values on board
+     */
+    Cards[][] getBoard(Field field) {
+        return field.getCells();
+    }
+
+    /**
+     * gets the stack for testing
+     *
+     * @return the stack
+     */
+    List<Domino> getStack() {
+        return stack;
+    }
+
+    /**
+     * return the next box with their values
+     *
+     * @return
+     */
+    Domino[] getNextBox() {
+        return this.nextBox;
+    }
+
+    /**
+     * return the next choose array
+     *
+     * @return
+     */
+    Choose[] getChooseArray() {
+        return this.nextChoose;
+    }
+
+    /**
+     * check if the given box is empty , then return true.
+     *
+     * @param box
+     * @return true if the given box is emplty.
+     */
+    Boolean isEmpty(Domino[] box) {
+        boolean isEmpty = false;
+        for (int i = 0; i < box.length; i++) {
+            if (box[i] == null) {
+                isEmpty = true;
+            }
+        }
+        return isEmpty;
+    }
+
+    /**
+     * clear the current choose
+     */
+    private void clearCurrChoose() {
+        for (int i = 0; i < currChoose.length; i++) {
+            currChoose[i] = new Choose(new Domino(null), players[i]);
+        }
+    }
+
+    /**
+     * clear the next choose array
+     */
+    private void clearNextChoose() {
+        for (int i = 0; i < nextChoose.length; i++) {
+            nextChoose[i] = new Choose(null, null);
+        }
+    }
+
+    /**
+     * clear the given box
+     *
+     * @param box
+     */
+    private void clearBox(Domino[] box) {
+        for (int i = 0; i < box.length; i++) {
+            box[i] = new Domino(null);
+        }
+    }
+
+    /**
+     * sort next box according their values
+     */
+    void sortNextBox() {
+        //fillNextBox();
+        Domino domino;
+        for (int i = 0; i < nextBox.length; i++) {
+            if (i < nextBox.length - 1 && nextBox[i + 1].getTile().ordinal() < nextBox[i].getTile().ordinal()) {
+                domino = nextBox[i];
+                nextBox[i] = nextBox[i + 1];
+                nextBox[i + 1] = domino;
+                i = -1; // reset counter and start from first cell
+            }
+        }
+        for (int k = 0; k < nextBox.length; k++) {
+            this.gui.setToNextBox(k, nextBox[k]);
+        }
+
+    }
+
+    /**
+     * sets domino to the currDomino and shows it in the Choose-Box.
+     *
+     * @param domino domino to set to
+     */
+    private void setToChooseBox(Domino domino) {
+        //currDomino = domino;
+        gui.showInChooseBox(domino);
+    }
+
+    /**
+     * fills of domino to next selection box.
+     *
+     * @param domino domino to set
+     */
+    void fillNextBox() {
+        for (int i = 0; i < nextBox.length; i++) {
+            nextBox[i] = getDomFromStack(stack);
+        }
+        sortNextBox();
+    }
+
+    /**
+     * gets a domino from stack
+     *
+     * @param stack list to remove dominos of
+     * @return a domino
+     */
+    Domino getDomFromStack(List<Domino> stack) {
+        Random rand = new Random();
+        if (stack.size() > 0) {
+            return stack.remove(rand.nextInt(stack.size()));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * this method is used just for bots. chooses a domino from the next box and
+     * a position to put to by taking each domino, The domino stays on bank.
+     *
+     * @return chosen domino, position and index of banks cell
+     */
+    Choose tryDominosFromNextBox(Players pl) {
+        assert (pl != null);
+        boolean isChose = false;
+        int index = 0;
+        Domino domino = null;
+
+        while (!isChose) {
+            Random rand = new Random();// later you should fix it to get highest 
+
+            int x = 0 + rand.nextInt(nextBox.length);// index of selected cell by AI
+            if (nextChoose[x].getDomino() == null) {//it means before that domino is not chosen
+                domino = nextBox[x];
+                Position pos = currChoose[currPlayer].getPlayer().getField().findPosFor(domino);
+                nextBox[x] = null;
+                index = x;
+                isChose = true;
+            }
+        }
+        nextChoose[index] = new Choose(domino, pl);// store a new isChose into an array of isChose
+
+        this.gui.setToNextBox(index, null);
+        return nextChoose[index];
+    }
+
+    @Override
+    public void clickOnNextBox(int idx) {
+        int index = 0;
+        Domino domino = null;
+        domino = nextBox[idx];
+        index = idx;
+        if (nextBox[idx] != null && currDomino == null) {
+
+            nextChoose[index] = new Choose(domino, currChoose[currPlayer].getPlayer());
+            nextBox[idx] = null;
+            this.gui.setToNextBox(index, null);
+
+            if (currChoose[currPlayer].getDomino().getTile() == null) {
+                nextPlayer();
+            } else {
+
+                currDomino = currChoose[currPlayer].getDomino();
+                setToChooseBox(currDomino);
+
+            }
+        } 
+
+    }
+
+    /**
+     *
+     * Sets current player to next player if game is not ended. when a round is
+     * finished this method is called and next player should play the game. If
+     * next player is bot then botsTurn will be called
+     */
+    void nextPlayer() {
+
+        currPlayer++;
+        if (stack.isEmpty() && currPlayer == players.length) {
+            endGame();
+        } else {
+
+            if (currPlayer == players.length) {
+                currPlayer = 0;
+
+                for (int i = 0; i < nextChoose.length; i++) {
+                }
+                currChoose = nextChoose.clone();
+                for (int i = 0; i < currChoose.length; i++) {
+                    this.gui.setToCurrentBox(i,
+                            currChoose[i].getDomino(),
+                            currChoose[i].getPlayer().getId());//show in current box gui  
+                }
+
+                clearNextChoose();
+                if (!stack.isEmpty()) {
+                    fillNextBox();
+                }
+            }
+            if (currChoose[currPlayer].getPlayer().isBot()) {
+                botsTurn(currChoose[currPlayer].getPlayer(), currChoose[currPlayer].getDomino(),
+                        currChoose[currPlayer].getPlayer().getField());
+            } else {
+            }
+        }
+
+    }
+
+    /**
+     * set the each bot turn with given domino in given field. checks if the
+     * selected dpmino is null then next player will be called. else, finnding
+     * the position for given domino and then lay it on the field. at the end
+     * again next player is called.
+     *
+     *
+     * @param p is current bot player
+     * @param domino is given domino
+     * @param field is given field
+     */
+    void botsTurn(Players p, Domino domino, Field field) {
+
+        Choose chose = tryDominosFromNextBox(p);
+        if (chose.getDomino() == null) {
+            nextPlayer();
+        }
+        if (domino.getTile() == null) {//domino in curr choose of bot this is for first time
+            nextPlayer();
+        } else {
+
+            Position pos = field.findPosFor(domino);//pos is the first position
+            if (pos != null) {
+                field.lay(domino, pos, p.getId());//update gui have done in field class in lay method 
+            } else {
+            }
+            this.logger.logging(p, chose, domino, pos);
+            nextPlayer();
+        }
+    }
+
+    /**
+     * clears the board, next box, current choose. Gets town hall domino from
+     * stacks and sets it to the middle of the board. sets the current domino to
+     * null. then fill the next box
+     * <br>
+     * Human player starts.
+     */
+    @Override
+    public void startGame() {
+
+        clearBox(nextBox);
+        clearNextChoose();
+        clearCurrChoose();
+        for (int i = 0; i < players.length; i++) {
+            this.gui.updateGrid(players[i].newStartField(), players[i].getId());
+            this.gui.setToCurrentBox(i,
+                    currChoose[i].getDomino(),
+                    currChoose[i].getPlayer().getId());
+        }
+        currDomino = null;
+        this.gui.showInChooseBox(currDomino);
+        currPlayer = 0;
+        Domino.fill(stack);// fill the stack(stack);
+        fillNextBox();
+    }
+
+    /**
+     * counts the points of the players and shows the result of the game.
+     */
+    void endGame() {
+
+        int max = 0;
+        String name = "";
+        int temp;
+        String result = "";
+        for (int i = 0; i < players.length; i++) {
+            temp = players[i].getField().countPoints();
+            if (temp > max) {
+                max = temp;
+                name = players[i].getName();
+            }
+        }
+        for (int i = 0; i < players.length; i++) {
+            result = result + players[i].getName() + " : " + players[i].getField().countPoints() + "\n";
+            result = result + players[i].getField().countPointsString();
+
+            result = result + "---------------------\n";
+
+        }
+        logger.closeLog();
+        this.gui.showResult(result, name, max);
+    }
+
+    /**
+     * the current Domino (that is shown in clickOnPlayersBank-box) is rotated
+     * by 90 degrees clockwise and shown. the gui is updated.(from last
+     * semester)
+     */
+    @Override
+    public void boxClicked() {
+        assert (currDomino != null) : "domino is null";
+        if (currDomino != null) {
+            currDomino.incRotation();
+            setToChooseBox(currDomino);
+        }
+    }
+
+    /**
+     * puts the current Domino to the given position on board and removes it
+     * from the nextChoose-box and switches to the next player.
+     *
+     * @param posFst position to lay to describes the top-left halfs position
+     *
+     */
+    @Override
+    public void setOnBoard(Position posFst) {
+        if (currDomino != null && fits(posFst) && !currChoose[currPlayer].getPlayer().isBot()) {
+            Position posSnd = currDomino.getSnd(posFst);
+            currChoose[currPlayer].getPlayer().getField().lay(currDomino, posFst, currChoose[currPlayer].getPlayer().getId());
+            logger.logging(currChoose[currPlayer].getPlayer(), currChoose[currPlayer], currDomino, posFst);
+            currDomino = null;
+            setToChooseBox(currDomino);
+            nextPlayer();
+        }
+    }
+
+    /**
+     * save the game
+     */
+    @Override
+    public void save() {
+        save = new Save();
+        try {
+
+            save.saveField(this.gui, this.players, getNextBox(), nextChoose, currChoose, players[currPlayer], currPlayer, stack);
+        } catch (IOException ex) {
+            Logger.getLogger(Game.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * load the game
+     *
+     */
+    @Override
+    public GUIToGame load(GUIToGame game) {
+        load = new Load();
+        try {
+            game = load.loadFile(this.gui, game);
+        } catch (IOException ex) {
+        }
+        return game;
+    }
+
+    /**
+     * if the player cannot play she can discard her card and next player is
+     * called
+     */
+    @Override
+    public void moveToDiscards() {
+        if (currDomino != null) {
+            logger.logging(currChoose[currPlayer].getPlayer(), currChoose[currPlayer], currDomino, null);
+            currDomino = null;
+            setToChooseBox(currDomino);
+            nextPlayer();
+        }
+    }
+
+    @Override
+    public boolean fits(Position pos) {//think about it later
+        Boolean isFit = false;
+        if (currDomino != null) {
+            isFit = currChoose[currPlayer].getPlayer().getField().fits(currDomino, pos);
+        }
+        return isFit;
+    }
+
+    @Override
+    public void moveUpCityCenter() {
+        currChoose[currPlayer].getPlayer().getField().moveTownHallUp();
+    }
+
+    @Override
+    public void moveDownCityCenter() {
+        currChoose[currPlayer].getPlayer().getField().moveTownHallDown();
+    }
+
+    @Override
+    public void moveLeftCityCenter() {
+        currChoose[currPlayer].getPlayer().getField().moveTownHallLeft();
+    }
+
+    @Override
+    public void moveRightCityCenter() {
+        currChoose[currPlayer].getPlayer().getField().moveTownHallRight();
+    }
+
+}

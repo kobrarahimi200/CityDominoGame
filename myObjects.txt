@@ -1,0 +1,27 @@
+HumanHuman0    
+0    
+logic.Field@39797ed4BotBot1    
+1    
+logic.Field@416dfdc8BotBot2    
+2    
+logic.Field@4c68a1c8BotBot3    
+3    
+logic.Field@236ef57d
+ this is next box tiles     
+H1_P0_26    
+    
+A1_H0_34    
+    
+I1_P0_40    
+    
+O0_I2_46    
+
+ this is next choose tiles     
+    
+    
+
+ this is current choose tiles     
+    
+    
+    
+BotBot3    

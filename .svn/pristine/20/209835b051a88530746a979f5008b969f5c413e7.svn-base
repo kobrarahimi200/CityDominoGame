@@ -1,0 +1,150 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package logic;
+
+import static logic.Cards.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+/**
+ *
+ * @author kobra
+ */
+public class FieldTest {
+    
+    @Test
+    public void testBoard_int() {
+        Field field = new Field(new FakeGUI(), 7, 12);
+        assertEquals(Cards.E, field.getCell(0, 0));
+        assertEquals(Cards.E, field.getCell(6, 11));
+    }
+
+    @Test
+    public void testBoard_string_Empty() {
+        Field field = new Field(new FakeGUI(),new Cards[][]
+        {{E, E, E, E},
+        {E, E, E, E},
+        {E, E,CC, E},
+        {E, E, E, E}} );
+        assertEquals(4, field.getCols());
+        assertEquals(4, field.getRows());
+        assertEquals(E, field.getCell(3, 2));
+        assertEquals(CC, field.getCell(2, 2));
+        assertTrue(field.isEmpty(new Position(1, 0)));
+    }
+    
+    @Test
+    public void testIsValidPos() {       
+        Field field = new Field(new FakeGUI(),new Cards[][]
+        {{E, E, A1, E},
+        {E, I0, CC, H0},
+        {E, E, E, P0}} );
+        assertEquals(3, field.getCols());
+        assertEquals(4, field.getRows());
+        assertFalse(field.isValidPos(new Position(0, 4)));
+        assertTrue(field.isValidPos(new Position(1, 1)));
+        //assertTrue(field.isEmpty(new Position(1, 0)));
+        
+    }
+
+    @Test
+    public void testIsEmpty() {
+         Field field = new Field(new FakeGUI(),new Cards[][]
+        {{E, E, A1, E},
+        {E, A0, E, E},
+        {P0, E,CC, P1},
+        {E, E, E, H0},
+        {E, E, E, H0}} );
+        assertEquals(5, field.getCols());
+        assertEquals(4, field.getRows());
+        assertEquals(E, field.getCell(3, 2));
+        assertFalse(field.isEmpty(new Position(1, 1)));
+        assertTrue(field.isEmpty(new Position(1, 0)));
+        assertEquals(A1, field.getCell(0, 2));
+    }
+
+    @Test
+    public void testGetCell_Position() {
+        
+        Field field = new Field(new FakeGUI(),new Cards[][]
+        {{E, A1,E ,E ,E},
+        {P1, A0, E, E, E},
+        {P0, E,CC, H1, O1},
+        {E, E, E, H0, E},
+        {E, E, E, H0, E}} );
+        assertEquals(5, field.getCols());
+        assertEquals(5, field.getRows());
+        assertEquals(A0, field.getCell(1, 1));
+        assertEquals(E, field.getCell(0, 2));
+        assertEquals(H0, field.getCell(3, 3));
+    }
+
+    @Test
+    public void testFits() { 
+         Field field = new Field(new FakeGUI(),new Cards[][]
+        {{E, A1,E ,E ,E},
+        {P1, A0, E, E, E},
+        {P0, P0,CC,H1, O1},
+        {E, E, E, H0, E},
+        {E, E, E, H0, E}} );
+        assertEquals(5, field.getCols());
+        assertEquals(5, field.getRows());
+        assertEquals(A0, field.getCell(1, 1));
+        assertEquals(1, field.occupiedSides(new Position(0, 2)));
+        assertEquals(3, field.occupiedSides(new Position(1, 1)));
+        assertFalse(field.fits(new Domino(Tiles.FIFTEEN),new Position(0, 0)));
+        assertFalse(field.fits(new Domino(Tiles.FIFTEEN),new Position(0, 1))); // p0 s0
+        assertTrue(field.fits(new Domino(Tiles.FIFTEEN),new Position(3, 0)));
+        assertFalse(field.fits(new Domino(Tiles.FIFTEEN),new Position(0, 2)));
+    }
+
+    @Test
+    public void testLay() {
+    Field field = new Field(new FakeGUI(),new Cards[][]
+        {{E, A1,I0 ,E ,E},
+        {P1, A0, E, E, E},
+        {P0, E,CC, H1, O1},
+        {E, E, E, H0, E},
+        {E, E, E, H0, E}} );
+        assertEquals(5, field.getCols());
+        assertEquals(5, field.getRows());
+        field.lay(new Domino(Tiles.FOURTY_EIGHT), new Position(0, 3)); // p0, I3
+        assertEquals(A0, field.getCell(1, 1));
+        assertEquals(E, field.getCell(0, 4));
+        assertEquals(H0, field.getCell(3, 3));
+    }
+
+    @Test
+    public void testFindPosFor() {
+    }
+
+    @Test
+    public void testcountPoints() {
+        
+        Field field = new Field(new FakeGUI(),new Cards[][]
+        {{E, E,E ,E ,E},
+        {P1, E, E, E, P0},
+        {P0, E,CC, H1, P1},
+        {E, E, E, H0, E},
+        {E, E, E, H0, E}} );
+        assertEquals(5, field.getCols());
+        assertEquals(5, field.countPoint());
+    }
+     @Test
+    public void testcountPoints2() {
+        
+        Field field = new Field(new FakeGUI(),new Cards[][]
+        {{E, E, E ,E , E},
+        {P1, A1, E, E, E},
+        {P0, A0,CC,H0 ,E},
+        {E, E, E, H0, E},
+        {E, E, E, E, E}} );
+        assertEquals(5, field.getCols());
+        assertEquals(4, field.countPoint());
+        
+    }
+    
+}

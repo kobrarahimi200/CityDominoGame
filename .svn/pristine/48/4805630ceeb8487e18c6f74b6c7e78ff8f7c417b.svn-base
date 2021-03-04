@@ -1,0 +1,33 @@
+
+package logic;
+import java.util.LinkedList;
+import java.util.List;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+/**
+ *
+ * @author kobra
+ */
+public class GameTest {
+    
+  
+     @Test
+    public void testGetDomFromStack() {
+        Game game = new Game(new FakeGUI(), 3, 4);
+        List<Domino> stack = new LinkedList<>();
+        assertNull(game.getDomFromStack(stack));
+        
+        stack.add(new Domino(Tiles.EIGHT));
+        stack.add(new Domino(Tiles.EIGHTTEEN));
+        assertEquals(new Domino(Tiles.EIGHT), game.getDomFromStack(stack));
+        assertEquals(1, stack.size());
+    }  
+    @Test
+    public void testCheckSortedNextBox() {
+        Game game = new Game(new FakeGUI(), 3, 4);
+        //assertTrue(game.cheIfGreater(this.nextBox[i])); 
+    }
+    
+
+}

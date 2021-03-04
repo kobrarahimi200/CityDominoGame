@@ -1,0 +1,86 @@
+package logic;
+
+/**
+ * a position of domino.it also calculates the neighbors of a position .
+ *
+ * @author kobra
+ */
+public class Position {
+
+    private final int x;
+    private final int y;
+
+    public Position(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    /**
+     * returns the x position
+     *
+     * @return
+     */
+    public int x() {
+        return x;
+    }
+
+    /**
+     * returns the y position
+     *
+     * @return
+     */
+    public int y() {
+        return y;
+    }
+
+    /**
+     * gets the four neighboured positions even if they are not on board.
+     *
+     * @return the four neighboured positions
+     */
+    public Position[] getNeighbours() {
+        Position[] neighbours = new Position[4];
+        neighbours[0] = new Position(this.x - 1, this.y);
+        neighbours[1] = new Position(this.x, this.y - 1);
+        neighbours[2] = new Position(this.x + 1, this.y);
+        neighbours[3] = new Position(this.x, this.y + 1);
+        return neighbours;
+    }
+
+    /**
+     * two positions are equal if the x-values and y-values are equal
+     *
+     * @param obj
+     * @return true, if the x-values and y-values are equal
+     */
+    @Override
+    public boolean equals(Object obj) {
+        return obj != null
+                && obj.getClass() == this.getClass()
+                && ((Position) obj).x == this.x
+                && ((Position) obj).y == this.y;
+    }
+
+    /**
+     * x/y
+     *
+     * @return x/y
+     */
+    @Override
+    public String toString() {
+        return x + "/" + y;
+    }
+
+    /**
+     * checks if this position is next to given position.
+     *
+     * @param p position to be near to
+     * @return if this position is next to given position
+     */
+    public boolean isNextTo(Position p) {
+        int xDiff = Math.abs(x - p.x());
+        int yDiff = Math.abs(y - p.y());
+        return (xDiff == 1 && yDiff == 0
+                || xDiff == 0 && yDiff == 1);
+    }
+}

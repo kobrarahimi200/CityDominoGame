@@ -1,0 +1,244 @@
+package GUI;
+
+//import Logic.GUsGame;
+//import static GUI.JavaFXGUI.EMPTY_IMG;
+import java.net.URL;
+import java.util.Random;
+import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+
+/**
+ *
+ * @author kobra
+ */
+public class FXMLDocumentController implements Initializable {
+
+
+    @FXML
+    private GridPane grdHuman;
+    @FXML
+    private Tab tbA1;
+    @FXML
+    private GridPane grdA1;
+    @FXML
+    private Tab tbA2;
+    @FXML
+    private GridPane grdA2;
+    @FXML
+    private Tab tbA3;
+    @FXML
+    private GridPane grdA3;
+    @FXML
+    private TabPane tabGeneral;
+    @FXML
+    private BorderPane brdPane;
+    @FXML
+    private GridPane grdSelect2;
+    private JavaFXGUI gui;
+    private final Image TOWN_HALL = new Image("GUI/img/CityHall_Empty.png");
+    private JavaFXGUI GUI;
+    ImageView[][] imgSelect3;
+    @FXML
+    private AnchorPane anPaneLeft;
+    @FXML
+    private VBox vboxLeft;
+    @FXML
+    private VBox vboxRight;
+    @FXML
+    private GridPane grdSelect1;
+    @FXML
+    private GridPane grdSelect3;
+    @FXML
+    private Button btnRotate;
+    @FXML
+    private Button btnSkip;
+    @FXML
+    private Button btnNewGame;
+    @FXML
+    private Tab tbHuman;
+    @FXML
+    private AnchorPane pnH;
+    @FXML
+    private Pane pnSelected;
+
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        ImageView[][] grdH = addImagesToGrid(grdHuman);
+        ImageView[][] grda1 = addImagesToGrid(grdA1);
+        ImageView[][] grda2 = addImagesToGrid(grdA2);
+        ImageView[][] grda3 = addImagesToGrid(grdA3);
+        GUI = new JavaFXGUI(grdHuman, grdA1, grdA2, grdA3);
+        //ImageView[][] imgVwsGame = addImagesToGrid(grdPnGame);
+        this.addDragAndDropHandlers(grdH);
+        this.grdHuman.prefHeightProperty().bind(tabGeneral.heightProperty());
+        this.grdA1.prefHeightProperty().bind(tabGeneral.heightProperty());
+        this.grdA2.prefHeightProperty().bind(tabGeneral.heightProperty());
+        this.grdA3.prefHeightProperty().bind(tabGeneral.heightProperty());
+
+    }
+
+    /**
+     * creates an array of imageviews corresponding to the gridPane. Each
+     * imageView becomes a child of the gridPane and fills a cell. For proper
+     * resizing it is binded to the gridPanes width and height.
+     *
+     * @return an array of imageviews added to the gridPane
+     */
+    private ImageView[][] addImagesToGrid(GridPane grid) {
+
+        int colcount = grid.getColumnConstraints().size();
+        int rowcount = grid.getRowConstraints().size();
+        ImageView[][] imgVwsGame = new ImageView[colcount][rowcount];
+
+        for (int x = 0; x < colcount; x++) {
+            for (int y = 0; y < rowcount; y++) {
+                //creates an imageview with the empty image (for some reasons there needs to an image there for the drag and drop to work :()
+                imgVwsGame[x][y] = new ImageView(JavaFXGUI.EMPTY_IMG);
+
+                //add the imageview to the cell and
+                //assign the correct indicees for this imageview, so you later can use GridPane.getColumnIndex(Node)
+                grid.add(imgVwsGame[x][y], x, y);
+
+                //the image shall resize when the cell resizes
+                imgVwsGame[x][y].fitWidthProperty().bind(grid.widthProperty().divide(colcount).subtract(grid.getHgap()));
+                imgVwsGame[x][y].fitHeightProperty().bind(grid.heightProperty().divide(rowcount).subtract(grid.getVgap()));
+            }
+        }
+        return imgVwsGame;
+    }
+
+
+   /**
+    * put the citx hall image in the middle of the grid
+    * @param grid is the given gridpane
+    */
+    private void cityHallPut(GridPane grid) {
+        int colcount = grid.getColumnConstraints().size();
+        int rowcount = grid.getRowConstraints().size();
+        ImageView imgHall = new ImageView(TOWN_HALL);
+        grid.add(imgHall, 2, 2);
+        imgHall.fitWidthProperty().bind(grid.widthProperty().divide(colcount).subtract(grid.getHgap()));
+        imgHall.fitHeightProperty().bind(grid.heightProperty().divide(rowcount).subtract(grid.getVgap()));
+    }
+
+    @FXML
+    private void onClickBtnStart(ActionEvent event) {
+        for(int i =0 ; i< 4; i++){
+           switch(i){
+                case 0 :
+                    cityHallPut(grdHuman);
+                    break;
+                case 1 :
+                    cityHallPut(grdA1);
+                    break;
+                case 2 :
+                    cityHallPut(grdA2);
+                    break;
+                default :
+                    cityHallPut(grdA3);
+           }
+       }
+        addImageToSelect1(grdSelect1);
+        imgSelect3 = addImageToSelect1(grdSelect3);
+    }
+
+    /**
+     * adding image to the given grid pane
+     * @param grd is the given grid pane
+     * @return an array of image view
+     */
+    private ImageView[][] addImageToSelect1(GridPane grd){
+        int col = grd.getColumnConstraints().size();
+        int row = grd.getRowConstraints().size();
+        ImageView[][] imgVwsGame = new ImageView[col][row];
+        int j = 0;
+        for (int x = 0; x < col; x++)
+            for (int y = 0; y < row; y++) {
+                Random random = new Random();
+                int rand = 0 + random.nextInt(23);
+
+                //creates an imageview with the empty image (for some reasons there needs to an image there for the drag and drop to work :()
+                imgVwsGame[x][y] = new ImageView(JavaFXGUI.loadImg()[rand]);
+                j++;
+
+                //add the imageview to the cell and
+                //assign the correct indicees for this imageview, so you later can use GridPane.getColumnIndex(Node)
+                grd.add(imgVwsGame[x][y], x, y);
+
+                //the image shall resize when the cell resizes
+                imgVwsGame[x][y].fitWidthProperty().bind(grd.widthProperty().divide(col).subtract(grd.getHgap()));
+                imgVwsGame[x][y].fitHeightProperty().bind(grd.heightProperty().divide(row).subtract(grd.getVgap()));
+            }
+        return imgVwsGame;
+    }
+
+
+    /**
+     *  this method is first initialization of draging image inside the grid pane
+     * @param event
+     */
+
+    private void onDragDetectedSelect2(MouseEvent event) {
+        /* drag was detected, start a drag-and-drop gesture*/
+        /* allow any transfer mode */
+        Dragboard db = this.grdSelect3.startDragAndDrop(TransferMode.MOVE);//moving the image
+        ClipboardContent content = new ClipboardContent();
+
+        content.putString("");
+        db.setContent(content);
+
+        db.setDragView(this.grdSelect3.snapshot(new SnapshotParameters(), null), 10, 10);
+        event.consume();
+    }
+
+    /**
+     * adding the image to the given image view through drag event
+     * @param target is the given image view
+     */
+    private void addDragAndDropHandlers(ImageView[][] target) {
+        for (int x = 0; x < target.length; x++)
+            for (int y = 0; y < target[x].length; y++) {
+                final int fx = x;
+                final int fy = y;
+                target[x][y].setOnDragOver((EventHandler<DragEvent>) (DragEvent event) -> {
+                    if (event.getGestureSource() == pnSelected) {
+                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                    }
+                    event.consume();
+                });
+
+                target[x][y].setOnDragDropped((EventHandler<DragEvent>) (DragEvent event) -> {
+                    boolean success = false;
+
+                    target[fx][fy].setImage(imgSelect3[0][0].getImage());
+                    target[fx+1][fy].setImage(imgSelect3[1][0].getImage());
+                    //target[finalX][finalY].getChildren().add(this.grdSelect2);
+                    success = true;
+
+                    event.setDropCompleted(success);
+                    event.consume();
+                });
+            }
+    }
+
+}

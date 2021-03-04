@@ -1,0 +1,39 @@
+
+package logic;
+
+/**
+ * This class returns the chosen domino by players and current player who chosen the domino. 
+ * @author kobra
+ */
+public class Choose {
+
+    private final Domino domino;
+    private Players currPlayer;
+    //  private Position pos;
+
+    public Choose(Domino domino, Players player) {
+
+        this.domino = domino;
+        this.currPlayer = player;
+    }
+    
+    public Choose(Domino domino) {
+
+        this.domino = domino;
+
+    }
+
+    Players getPlayer() {
+        return this.currPlayer;
+    }
+
+    public Domino getDomino() {
+        return this.domino;
+    }
+
+    @Override
+    public String toString() {
+        return " " + domino ;
+    }
+
+}

@@ -1,0 +1,25 @@
+
+package logic;
+
+/**
+ *
+ * @author kobra
+ */
+public enum Cards{
+  P0 (0), P1(1),
+  H0 (0), H1(1),
+  A0(0), A1(1),
+  S0(0), S1(1), S2(2) ,
+  O0(0), O1(1), O2(2),
+  I0(0),I1(1), I2(2), I3(3),
+  CC(6), E(-1) ;
+  
+  private int symboles;
+  Cards(int symol){
+      this.symboles = symol;
+  }
+  
+  public int getSymbol(){
+      return symboles;
+  }
+}

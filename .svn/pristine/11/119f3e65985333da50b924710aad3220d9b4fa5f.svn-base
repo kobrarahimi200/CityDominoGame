@@ -1,0 +1,426 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package logic;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+
+/**
+ *
+ * @author kobra
+ */
+public class Game {
+
+    /**
+     * the dominos of the players. Each Player can hold selectionBox size
+     * dominos.
+     */
+    private final Domino[] nextBox;
+
+    private final Domino[] currentBox;
+
+    /**
+     * the stack with all dominos at the beginning.
+     */
+    private final List<Domino> stack;
+
+    private Field[] field;
+
+    /**
+     * the current player
+     */
+    private Players currPlayer;
+    private Players[] players;
+    /**
+     * the current domino
+     */
+    private Domino currDomino;
+    private Field currField;
+    private int selectionSize;
+
+    /**
+     * the gui to display on
+     */
+    private GUIConnector gui;
+
+    Players[] getPlayers() {
+        return players;
+    }
+
+    /**
+     * creates a game
+     *
+     * @param gui gui to display on
+     * @param sizeX x-size of the board
+     * @param sizeY y-size of the board
+     * @param numOfHuman
+     * @param numOfBots
+     */
+    public Game(GUIConnector gui, int sizeX, int sizeY, int numOfHuman, int numOfBots) {
+        this.gui = gui;
+        this.selectionSize = numOfBots + numOfHuman;
+        this.nextBox = new Domino[selectionSize];
+        this.currentBox = new Domino[selectionSize];
+        this.stack = new LinkedList<>();
+        Domino.fill(stack);// fill the stack
+
+        for (int i = 0; i < numOfHuman; i++) {
+            players[i] = new Human("" + i, sizeX, sizeY);
+            this.currPlayer = players[i];
+            //  this.currField // how to get current player field????we dont need it
+        }
+
+        for (int i = 0; i < numOfBots; i++) {
+            players[i + numOfHuman] = new Bot("" + i, sizeX, sizeY);
+        }
+
+    }
+
+    /**
+     * for testing:
+     *
+     * @param currField
+     * @param currDomino
+     * @param currPlayers
+     *
+     */
+    public Game( Field currField, Domino currDomino, String currPlayers) {
+        
+        // this.currentBox = new Domino[selectionSize];
+        this.currDomino = currDomino;
+        Players p1 = new Human(currPlayers, currField);
+        this.nextBox = new Domino[1];// we have just one player
+        for (int i = 0; i < 1; i++) {
+            sortBextBox();
+        }
+        currField.setStarter(); // field human is start the game
+    }
+
+    /**
+     * gets values on board
+     *
+     * @return values on board
+     */
+    Cards[][] getBoard(Field field) {
+        return field.getCells();
+    }
+
+    /**
+     * gets the stack for testing
+     *
+     * @return the stack
+     */
+    List<Domino> getStack() {
+        return stack;
+    }
+
+    Domino[] getNextBox() {
+        return this.nextBox;
+    }
+    /**
+     * sort according their values
+    */
+    void sortBextBox() {
+        fillNextBox();
+        Domino domino;
+        for (int i = 0; i < nextBox.length ;  i++) {
+            if (nextBox[i + 1].getTile().ordinal() < nextBox[i].getTile().ordinal()) {
+               domino = nextBox[i];
+               nextBox[i] = nextBox[i + 1];
+               nextBox[i + 1] = domino;
+               i = -1; // reset counter and start from first cell
+            }
+        }
+        
+    }
+
+    /**
+     * sets domino to the currDomino and shows it in the Choose-Box.
+     *
+     * @param domino domino to set to
+     */
+    private void setToChooseBox(Domino domino) {
+        currDomino = domino;
+        gui.showInChooseBox(domino);
+    }
+
+    /**
+     * fills of domino to next selection box.
+     *
+     * @param domino domino to set
+     */
+    void fillNextBox() {
+        for (int i = 0; i < nextBox.length; i++) {
+            nextBox[i] = getDomFromStack(stack);              
+        }
+    }
+
+    /**
+     * move the selected domino to the current selection box1
+     *
+     * * @param pl player whose bank to use
+     * @param idx index of banks cell to set in
+     * @param domino domino to set
+     */
+    void movetoCurrentBox(Players pl, int idx, Domino domino) {
+    }
+
+
+    /**
+     * gets a domino from stack
+     *
+     * @param stack list to remove dominos of
+     * @return a domino
+     */
+    Domino getDomFromStack(List<Domino> stack) {
+        Random rand = new Random();
+        if(stack.size() > 0){
+            return stack.remove(rand.nextInt(stack.size()));
+        }
+        else
+            return null;
+    }
+
+    /**
+     * checks if the player won the game (has no dominos)
+     *
+     * @param pl player
+     * @return true if the player won the game (has no dominos)
+     */
+    boolean won(Players pl) {
+        return true;
+    }
+
+    /**
+     * gets the index of the domino on the players Selection box next.
+     *
+     * @param pl
+     * @param domino
+     * @return the index of the domino on the players bank, -1 if its not on the
+     * bank
+     */
+    int getNextBoxIndexOf(Players pl, Domino domino) {
+        return 0;
+    }
+
+    /**
+     * removes domino from next box at the given index.//change
+     *
+     * @param idx index of the cell to empty
+     * @return domino at this index
+     */
+//    Domino removeFromNextBox(int idx) {
+//        //return this.domino;
+//    }
+    /**
+     * checks if the field has empty cells.
+     *
+     * @param pl player
+     * @return true if the bank has empty cells
+     */
+    boolean fieldHasEmptyCells(Players pl) {
+        return getEmptyIndexOnField(pl) >= 0;
+    }
+
+    /**
+     * gets the index of the last empty cell on the players bank
+     *
+     * @param pl
+     * @return the index of the last empty cell on the players bank
+     */
+    int getEmptyIndexOnField(Players pl) {
+        return getNextBoxIndexOf(pl, null);
+    }
+
+    /**
+     * true, if players field is full or stack is empty and no domino fits to
+     * an//change open end.
+     *
+     * @param pl
+     * @return true, if players bank is full and no domino fits to an open end.
+     */
+    boolean noTurnPossible(Players pl) {
+        return (!fieldHasEmptyCells(pl) || stack.isEmpty());
+    }
+
+    /**
+     * trying to lay the domino to the field by finding the fit position for
+     * that.
+     *
+     * @param pl
+     * @return
+     */
+    public Position tryDominosFromCurrentBox(Players pl) {
+        return new Position(x, y);// just test
+    }
+
+    /**
+     * chooses a domino from the bots bank and a position to put to by taking
+     * each domino, trying to place it on the board, rotating it and try again
+     * in all rotations until a domino and a fitting position is found. <br>
+     * The domino stays on bank.<br>
+     * Nothing changes on gui.
+     *
+     * @return chosen domino, position and index of banks cell
+     */
+    Choose tryDominosFromBank(Players pl) {
+        assert (pl != null);
+        Position pos = null;
+        int index = 0;
+        Domino domino = null;
+        //TODO DONE insert code
+        for (int i = 0; i < nextBox.length && pos == null; i++) {
+            if (nextBox[i] != null) {
+                domino = nextBox[i];
+                pos = field[i].findPosFor(domino);
+                if (pos != null) {
+                    index = i + 1;
+                }
+            }
+        }
+
+        return pos != null ? new Choose(domino, pos, index - 1) : null;
+    }
+
+    /**
+     * Ends the game if current player won or no turn is possible.<br>
+     * The result is displayed then. <br>
+     * Sets current player to next player if current didnt won. <br>
+     */
+    void nextPlayer() {
+
+    }
+
+    /**
+     * set the each bot turn with given domino and given field
+     *
+     * @param p is current bot player
+     * @param domino is given domino
+     * @param field is given field
+     */
+    void botsTurn(Players p, Domino domino, Field field) {
+
+        if (null != this.currPlayer);
+        for (int i = 0; i < players.length; i++) {
+            if (this.currPlayer.equals(players[i])) {
+                this.field
+            }
+        }
+
+        switch (this.currPlayer) {
+            case BOT1:
+                this.currDomino = domino;
+                this.bot1Field = field;
+                break;
+            case BOT2:
+                this.currDomino = domino;
+                this.bot1Field = field;
+                break;
+            case BOT3:
+                this.currDomino = domino;
+                this.bot1Field = field;
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * the process of playing each of bot players. select the domino from
+     * nextBox and mpve to the curentBox try to place it in the field if it is
+     * fit.
+     */
+    void botPlayer() {
+
+    }
+
+    /**
+     * clears the board. Deals the dominos to the next box. <br>
+     * Gets town hall domino from stacks and sets it to the middle of the board.
+     * <br>
+     * Human player starts.
+     */
+    public void startGame() {
+        //renew all four fields
+        this.humanField = new Field(gui, humanField.getCols(), humanField.getRows());
+        this.bot1Field = new Field(gui, bot1Field.getCols(), bot1Field.getRows());
+        this.bot2Field = new Field(gui, bot2Field.getCols(), bot2Field.getRows());
+        this.bot3Field = new Field(gui, bot3Field.getCols(), bot3Field.getRows());
+
+        //deal dominos
+        deal(stack);
+
+        //lay city center to the middle of all four fileds 
+        humanField.setStarter();
+        bot1Field.setStarter();
+        bot2Field.setStarter();
+        bot3Field.setStarter();
+
+        //human starts
+        currPlayer = Players.HUMAN;
+
+    }
+
+    /**
+     * counts the points of the players and shows the result of the game.
+     */
+    void endGame() {
+
+    }
+
+    /**
+     * the current Domino (that is shown in clickOnPlayersBank-box) is rotated
+     * by 90 degrees clockwise and shown. <br>
+     *
+     */
+    public void boxClicked() {
+
+    }
+
+    /**
+     * puts the current Domino to the given position on board and removes it
+     * from the choose-box and switches to the next player.//change
+     *
+     * @param posFst position to lay to describes the top-left halfs position
+     */
+    public void setOnBoard(Position posFst) {
+
+    }
+
+    /**
+     * checks if the current chosen domino fits at the position.//change
+     *
+     * @param pos position describes the top-left halfs position
+     * @param field is the given field
+     * @return true, if the current chosen domino fits at the position.
+     */
+    public boolean fits(Position pos, Field field) {
+        return field.fits(currDomino, pos);
+    }
+
+    /**
+     * save the game
+     */
+    public void save() {
+
+    }
+
+    /**
+     * load the game
+     */
+    public void load() {
+
+    }
+
+    /**
+     * if the player cannot play she can discard her card and next player is
+     * called
+     */
+    public void moveToDiscars() {
+
+    }
+}

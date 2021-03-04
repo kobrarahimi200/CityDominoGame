@@ -1,0 +1,56 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package logic;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+/**
+ *
+ * @author kobra
+ */
+public class DominoTest {
+    
+    public DominoTest() {
+    }
+     
+    @Test
+    public void testPositions_rot0() {
+        Domino dom = new Domino(Tiles.FOURTY_EIGHT, 0);
+        assertEquals(0, dom.getRot());
+        assertEquals(Cards.P0, dom.getFst());
+        assertEquals(Cards.I3, dom.getSnd());
+        assertEquals(new Position(2,1), dom.getSnd(new Position(1,1)));
+    }
+
+    @Test
+    public void testPositions_rot1() {
+        Domino dom = new Domino(Tiles.FOURTY_EIGHT, 1);
+        assertEquals(1, dom.getRot());
+        assertEquals(Cards.P0, dom.getFst());
+        assertEquals(Cards.I3, dom.getSnd());
+        assertEquals(new Position(1,2), dom.getSnd(new Position(1,1)));
+    }
+    
+    @Test
+    public void testPositions_rot2() {
+        Domino dom = new Domino(Tiles.FOURTY_EIGHT, 2);
+        assertEquals(2, dom.getRot());
+        assertEquals(Cards.I3, dom.getFst());
+        assertEquals(Cards.P0, dom.getSnd());
+        assertEquals(new Position(1,1), dom.getSnd(new Position(0,1)));
+    }
+    
+    @Test
+    public void testPositions_rot3() {
+        Domino dom = new Domino(Tiles.FOURTY_EIGHT, 3);
+        assertEquals(3, dom.getRot());
+        assertEquals(Cards.I3, dom.getFst());
+        assertEquals(Cards.P0, dom.getSnd());
+        assertEquals(new Position(1,1), dom.getSnd(new Position(1,0)));
+    }
+    
+}

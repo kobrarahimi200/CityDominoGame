@@ -1,0 +1,94 @@
+package logic;
+
+/**
+ * defines the methods needed by the FXMLController for reacting to the users
+ * input.in here we have two important method save and load, which save method saves 
+ * your program into a file and load method load your method form a file and show 
+ * them in the gui
+ *
+ * @author kobra
+ */
+public interface GUIToGame {
+
+    /**
+     * checks if the current chosen domino fits at the position.
+     *
+     * @param pos position describes the first position
+     * @return true, if the current chosen domino fits at the position.
+     */
+    boolean fits(Position pos);
+
+    /**
+     * the current Domino (that is shown in choose-box) is rotated by 90 degrees
+     * clockwise and shown. 
+     */
+    void boxClicked();
+
+    /**
+     * swaps the dominos of current players bank at the index with the domino of
+     * the nextChoose-box even if one of it is empty.(human call this method)
+     *
+     * @param idx index of the next box cell
+     */
+    void clickOnNextBox(int idx);
+
+    /**
+     * puts the current Domino to the given position on board and removes it
+     * from the choose-box and switches to the next player.
+     *
+     * @param posFst position to lay to describes the top-left halfs position
+     */
+    void setOnBoard(Position posFst);
+
+    /**
+     * save all fields data , remaining stack cards, remaining next box cards
+     * witch is not chosen
+     */
+    void save();
+
+    /**
+     * starts the game , clear all boxes and all field, fill the stack and fill
+     * the next box
+     */
+    public void startGame();
+
+    /**
+     * set the current domino to null and updates the selection box, call next
+     * player
+     */
+    public void moveToDiscards();
+
+    /**
+     * convert to string and return it
+     *
+     * @return string of that
+     */
+    public String toString();
+
+    /**
+     * move city center to top
+     */
+    public void moveUpCityCenter();
+
+    /**
+     * move city center to down side
+     */
+    public void moveDownCityCenter();
+
+    /**
+     * move city center to left side
+     */
+    public void moveLeftCityCenter();
+
+    /**
+     * move city center to right side
+     */
+    public void moveRightCityCenter();
+/**
+ * loading the game from a file and return a game
+ * @param game is given game
+ * @return a game
+ */
+    public GUIToGame load(GUIToGame game);
+
+}

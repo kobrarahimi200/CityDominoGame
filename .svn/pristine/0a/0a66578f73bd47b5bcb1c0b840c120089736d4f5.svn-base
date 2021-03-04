@@ -1,0 +1,39 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package logic;
+
+/**
+ *
+ * @author kobra
+ */
+public class Result {
+    
+    private final int[] points;
+    private Players winner;
+    
+     public Result(int[] points, Players winner) {
+        this.points = points;
+        this.winner = winner;
+    }
+
+    public int[] getPoints() {
+        return points;
+    }
+
+    public Players getWinner() {
+        return winner;
+    }
+
+    public void setWinner(Players winner) {
+        this.winner = winner;
+    }
+    
+     @Override
+    public String toString() {
+        return "Result{" + "points=" + points + ", winner=" + winner + '}';
+    }
+    
+}

@@ -1,0 +1,30 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package logic;
+
+/**
+ *
+ * @author kobra
+ */
+public class Choose {
+    
+    private final Tiles tile;
+    private  Players currPlayer;
+
+    public Choose(Tiles tile, Players player) {
+        this.tile = tile;
+        this.currPlayer = player;
+    }
+    
+     Players getPlayer() {
+        return this.currPlayer;
+    } 
+    
+     Tiles getTile() {
+        return this.tile;
+    }
+
+}

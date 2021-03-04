@@ -1,0 +1,191 @@
+package GUI;
+
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import logic.Domino;
+import logic.GUIConnector;
+import logic.Tiles;
+
+/**
+ *
+ * @author kobra
+ */
+public class javaFXGUI implements GUIConnector {
+
+    protected static final Image EMPTY_IMG = new Image("GUI/img/Empty.png");
+    private final int IMG_COUNT = 24;
+    private static Image[] imgs;
+    private GridPane grdHuman;
+    private GridPane grdA1;
+    private GridPane grdA2;
+    private GridPane grdA3;
+    private ImageView[][] imgVwsBank;
+    private ImageView[][] imgVewsGame;
+
+    private static final int IDX_FST = 0;
+    private static final int IDX_SND = 1;
+
+    /**
+     * default constructor
+     *
+     * @param grdHuman is the human gird
+     * @param a1 is the first AI grid pane
+     * @param a2 is the second AI grid pane
+     * @param a3 is the third AI grid pane
+     *
+     */
+    public javaFXGUI(GridPane grdHuman, GridPane a1, GridPane a2, GridPane a3) {
+        this.grdHuman = grdHuman;
+        this.grdA1 = a1;
+        this.grdA2 = a2;
+        this.grdA3 = a3;
+        loadAllImg();
+
+    }
+
+    /**
+     * Loads one image for one half of a domino tile.
+     *
+     * @param x the number of eyes; should be between 0 and 24, if is not the
+     * empty image will be returned
+     * @return image with appropriate number of eyes; empty image if there is
+     * not image available for desired number of eyes
+     */
+    private Image loadImage(int x) {
+        Image img = null;
+        switch (x) {
+            case 0:
+                img = new Image("GUI/img/Amusement_0.png");
+                break;
+            case 1:
+                img = new Image("GUI/img/Amusement_1.png");
+                break;
+            case 2:
+                img = new Image("GUI/img/Amusement_2.png");
+                break;
+            case 3:
+                img = new Image("GUI/img/Amusement_3.png");
+                break;
+            case 4:
+                img = new Image("GUI/img/Home_0.png");
+                break;
+            case 5:
+                img = new Image("GUI/img/Home_1.png");
+                break;
+            case 6:
+                img = new Image("GUI/img/Home_2.png");
+                break;
+            case 7:
+                img = new Image("GUI/img/Home_3.png");
+                break;
+            case 8:
+                img = new Image("GUI/img/Industry_0.png");
+                break;
+            case 9:
+                img = new Image("GUI/img/Industry_1.png");
+                break;
+            case 10:
+                img = new Image("GUI/img/Industry_2.png");
+                break;
+            case 11:
+                img = new Image("GUI/img/Industry_3.png");
+                break;
+            case 12:
+                img = new Image("GUI/img/Office_0.png");
+                break;
+            case 13:
+                img = new Image("GUI/img/Office_1.png");
+                break;
+            case 14:
+                img = new Image("GUI/img/Office_2.png");
+                break;
+            case 15:
+                img = new Image("GUI/img/Office_3.png");
+                break;
+            case 16:
+                img = new Image("GUI/img/Park_0.png");
+                break;
+            case 17:
+                img = new Image("GUI/img/Park_1.png");
+                break;
+            case 18:
+                img = new Image("GUI/img/Park_2.png");
+                break;
+            case 19:
+                img = new Image("GUI/img/Park_3.png");
+                break;
+            case 20:
+                img = new Image("GUI/img/Shopping_0.png");
+                break;
+            case 21:
+                img = new Image("GUI/img/Shopping_1.png");
+                break;
+            case 22:
+                img = new Image("GUI/img/Shopping_2.png");
+                break;
+            case 23:
+                img = new Image("GUI/img/Shopping_3.png");
+                break;
+            default:
+                img = EMPTY_IMG;
+                break;
+        }
+        return img;
+    }
+
+    @Override
+    public void setToNextBox(int index, Domino domino) {
+        if (index >= 0 && index < imgVwsBank[IDX_FST].length) {
+            Image[] imgs = (domino != null) ? this.getImagesForTile(domino.getTile()) : this.getImagesForTile(null);
+            this.imgVwsBank[IDX_FST][index].setImage(imgs[IDX_FST]);
+            this.imgVwsBank[IDX_SND][index].setImage(imgs[IDX_SND]);
+        }
+    }
+
+    /**
+     * Returns the appropriate pre-loaded image for the given value.
+     *
+     * @param value value for the image should be returned
+     * @return image if the value was valid, otherwise the empty image
+     */
+    private Image getImage(int value) {
+        return (value >= 0 && value <= this.imgs.length)
+                ? this.imgs[value]
+                : EMPTY_IMG;
+
+    }
+
+    /**
+     * Returns the appropriate images for the tile. The images are pre-loaded.
+     *
+     * @param tile the tile for which the image should be determined
+     * @return an array with two images (first and second of the tile)
+     */
+    private Image[] getImagesForTile(Tiles tile) {
+        Image[] imgs = (tile != null) ? new Image[]{
+            getImage(tile.getFst().ordinal()), getImage(tile.getSnd().ordinal())}
+                : new Image[]{EMPTY_IMG, EMPTY_IMG};
+        return imgs;
+    }
+
+    /**
+     * load all image into the an array
+     */
+    private void loadAllImg() {
+        imgs = new Image[IMG_COUNT];
+        for (int i = 0; i < imgs.length; ++i) {
+            this.imgs[i] = this.loadImage(i);
+        }
+    }
+
+    public static Image[] loadImg() {
+        return imgs;
+    }
+    
+    @Override
+    public void showInChooseBox(Domino dominoRotated){
+        
+    }
+
+}

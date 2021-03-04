@@ -1,0 +1,610 @@
+package GUI;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
+import logic.Cards;
+import logic.Domino;
+import logic.Field;
+import logic.GUIConnector;
+import logic.Position;
+import logic.Tiles;
+
+/**
+ * Concrete implementation of the GUIConnector used for the actual communication
+ * of the logic with the real gui.
+ *
+ * @author kobra
+ */
+public class JavaFXGUI implements GUIConnector {
+
+    protected static final Image EMPTY_IMG = new Image("GUI/img/Empty.png");
+    protected static final Image TOWN_HALL = new Image("GUI/img/CityHall_Empty.png");
+    private final int IMG_COUNT = 24;
+    private static Image[] imgs;
+    private ImageView[][] imgVwsNextBox;
+    private ImageView[][] imgVwsCurrntBox;
+    private ImageView[][] imgVewsHuman;
+    private ImageView[][] imgVewsA1;
+    private ImageView[][] imgVewsA2;
+    private ImageView[][] imgVewsA3;
+    private ImageView[][] onSelected;
+    private Pane pnSelected; //  this is for rotating domino
+
+    private static final int ID_F = 0;
+    private static final int ID_SND = 1;
+    private Domino currDomino = null;
+    private Button btn0;
+    private Button btn1;
+    private Button btn2;
+    private Button btn3;
+
+    /**
+     * default constructor
+     *
+     * @param pnSelected
+     * @param grdHuman is the human gird
+     * @param a1 is the first AI grid pane
+     * @param a2 is the second AI grid pane
+     * @param a3 is the third AI grid pane
+     * @param imgVwsNextBox
+     * @param imgVwsCurrentBox
+     * @param btn0
+     * @param btn1
+     * @param btn2
+     * @param btn3
+     *
+     */
+    public JavaFXGUI(Pane pnSelected, ImageView[][] grdHuman, ImageView[][] a1, ImageView[][] a2,
+            ImageView[][] a3, ImageView[][] imgVwsNextBox, ImageView[][] imgVwsCurrentBox,
+            Button btn0, Button btn1, Button btn2, Button btn3) {
+        this.pnSelected = pnSelected;
+        this.imgVewsHuman = grdHuman;
+        this.imgVewsA1 = a1;
+        this.imgVewsA2 = a2;
+        this.imgVewsA3 = a3;
+        loadAllImg();
+        this.imgVwsNextBox = imgVwsNextBox;
+        this.imgVwsCurrntBox = imgVwsCurrentBox;
+        this.btn0 = btn0;
+        this.btn1 = btn1;
+        this.btn2 = btn2;
+        this.btn3 = btn3;
+
+    }
+
+    /**
+     * Loads one image for one half of a domino tile.
+     *
+     * @param x the number of eyes; should be between 0 and 24, if is not the
+     * empty image will be returned
+     * @return image with appropriate number of eyes; empty image if there is
+     * not image available for desired number of eyes
+     */
+    private Image loadImage(logic.Cards x) {
+        Image img = null;
+        String path = "";
+        switch (x) {
+            case A0:
+                img = new Image("GUI/img/Amusement_0.png");
+                break;
+            case A1:
+                img = new Image("GUI/img/Amusement_1.png");
+                break;
+            case A2:
+                img = new Image("GUI/img/Amusement_2.png");
+                break;
+            case A3:
+                img = new Image("GUI/img/Amusement_3.png");
+                break;
+            case H0:
+                img = new Image("GUI/img/Home_0.png");
+                break;
+            case H1:
+                img = new Image("GUI/img/Home_1.png");
+                break;
+            case H2:
+                img = new Image("GUI/img/Home_2.png");
+                break;
+            case H3:
+                img = new Image("GUI/img/Home_3.png");
+                break;
+            case I0:
+                img = new Image("GUI/img/Industry_0.png");
+                break;
+            case I1:
+                img = new Image("GUI/img/Industry_1.png");
+                break;
+            case I2:
+                img = new Image("GUI/img/Industry_2.png");
+                break;
+            case I3:
+                img = new Image("GUI/img/Industry_3.png");
+                break;
+            case O0:
+                img = new Image("GUI/img/Office_0.png");
+                break;
+            case O1:
+                img = new Image("GUI/img/Office_1.png");
+                break;
+            case O2:
+                img = new Image("GUI/img/Office_2.png");
+                break;
+            case O3:
+                img = new Image("GUI/img/Office_3.png");
+                break;
+            case P0:
+                img = new Image("GUI/img/Park_0.png");
+                break;
+            case P1:
+                img = new Image("GUI/img/Park_1.png");
+                break;
+            case P2:
+                img = new Image("GUI/img/Park_2.png");
+                break;
+            case P3:
+                img = new Image("GUI/img/Park_3.png");
+                break;
+            case S0:
+                img = new Image("GUI/img/Shopping_0.png");
+                break;
+            case S1:
+                img = new Image("GUI/img/Shopping_1.png");
+                break;
+            case S2:
+                img = new Image("GUI/img/Shopping_2.png");
+                break;
+            case S3:
+                img = new Image("GUI/img/Shopping_3.png");
+                break;
+            default:
+                img = EMPTY_IMG;
+                break;
+        }
+        return img;
+    }
+
+    @Override
+    public void setToCurrentBox(int index, Domino domino, int playerId) {
+        if (index >= 0 && index < imgVwsCurrntBox[ID_F].length) {
+            Image[] imgs;
+            if (domino != null) {
+                imgs = this.getImagesForTile(domino.getTile());
+            } else {
+                imgs = new Image[]{EMPTY_IMG, EMPTY_IMG};
+            }
+            this.imgVwsCurrntBox[ID_F][index].setImage(imgs[ID_F]);
+            this.imgVwsCurrntBox[ID_SND][index].setImage(imgs[ID_SND]);
+            // System.out.println("GUICuurBox");
+            switch (playerId) {
+                case 0:
+                    switch (index) {
+                        case 0:
+                            this.btn0.setText("" + playerId);
+                            break;
+                        case 1:
+                            this.btn1.setText("" + playerId);
+                            break;
+                        case 2:
+                            this.btn2.setText("" + playerId);
+                            break;
+                        default:
+                            this.btn3.setText("" + playerId);
+                            break;
+                    }
+                    break;
+                case 1:
+
+                    switch (index) {
+                        case 0:
+                            this.btn0.setText("" + playerId);
+                            break;
+                        case 1:
+                            this.btn1.setText("" + playerId);
+                            break;
+                        case 2:
+                            this.btn2.setText("" + playerId);
+                            break;
+                        default:
+                            this.btn3.setText("" + playerId);
+                            break;
+                    }
+
+                    break;
+                case 2:
+                    switch (index) {
+                        case 0:
+                            this.btn0.setText("" + playerId);
+                            break;
+                        case 1:
+                            this.btn1.setText("" + playerId);
+                            break;
+                        case 2:
+                            this.btn2.setText("" + playerId);
+                            break;
+                        default:
+                            this.btn3.setText("" + playerId);
+                            break;
+                    }
+
+                    break;
+                case 3:
+                    switch (index) {
+                        case 0:
+                            this.btn0.setText("" + playerId);
+                            break;
+                        case 1:
+                            this.btn1.setText("" + playerId);
+                            break;
+                        case 2:
+                            this.btn2.setText("" + playerId);
+                            break;
+                        default:
+                            this.btn3.setText("" + playerId);
+                            break;
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void setToNextBox(int index, Domino domino) {
+        if (index >= 0 && index < imgVwsNextBox[ID_F].length) {
+            Image[] imgs;
+            if (domino != null) {
+                imgs = this.getImagesForTile(domino.getTile());
+            } else {
+                imgs = this.getImagesForTile(null);
+            }
+            this.imgVwsNextBox[ID_F][index].setImage(imgs[ID_F]);
+            this.imgVwsNextBox[ID_SND][index].setImage(imgs[ID_SND]);
+            //System.out.println("GUINextBox");
+        }
+    }
+
+    @Override
+    public void updateGrid(Field board, int x) {
+        int width = board.getCols();
+        int height = board.getRows();
+        for (int i = 0; i < width; ++i) {
+            for (int j = 0; j < height; ++j) {
+                Position pos = new Position(i, j);
+                //showCellOnGrid(pos, board.getCell(pos) );
+                showOnBorad(pos, board.getCell(pos), x);
+            }
+        }
+    }
+
+    /**
+     * Returns the appropriate pre-loaded image for the given value.
+     *
+     * @param value value for the image should be returned
+     * @return image if the value was valid, otherwise the empty image i have
+     * got help form last assignment
+     */
+    private Image getImage(int val) {
+        if (val >= 0 && val <= this.imgs.length) {
+            return this.imgs[val];
+        } else {
+            return EMPTY_IMG;
+        }
+    }
+
+    /**
+     * Returns the appropriate images for the tile. The images are pre-loaded.
+     *
+     * @param tile the tile for which the image should be determined
+     * @return an array with two images (first and second of the tile) i have
+     * got help form last assignment
+     */
+    private Image[] getImagesForTile(Tiles tile) {
+        Image[] imgs;
+        if (tile != null) {
+            imgs = new Image[]{getImage(tile.getFst().ordinal()), getImage(tile.getSnd().ordinal())};
+        } else {
+            imgs = new Image[]{EMPTY_IMG, EMPTY_IMG};
+        }
+        return imgs;
+    }
+
+    /**
+     * load all image into the an array
+     */
+    private void loadAllImg() {
+        imgs = new Image[IMG_COUNT];
+        //for (int i = 0; i < imgs.length; ++i) {
+        //this.imgs[i] = this.loadImage();
+        //}
+        for (Cards card : Cards.values()) {
+            if (card.ordinal() < IMG_COUNT) {
+                this.imgs[card.ordinal()] = this.loadImage(card);
+            }
+
+        }
+
+    }
+
+    public static Image[] loadImg() {
+        return imgs;
+    }
+
+    /**
+     * this method checks if given position is valid or not. it should be less
+     * than the length of the grid.(I have got help from last assignment)
+     *
+     * @param pos
+     * @return
+     */
+    public boolean isValidPosGrid(Position pos) {
+        boolean isValid = false;
+        if (pos.x() >= 0 && pos.x() < this.imgVewsHuman.length && pos.y() >= 0
+                && pos.y() < this.imgVewsHuman[pos.x()].length) {
+            isValid = true;
+        }
+        return isValid;
+
+    }
+
+    @Override
+    public void showOnGrid(Position fstPos, Cards fstValue, Position sndPos, Cards sndValue, int playerId) {
+        assert isValidPosGrid(fstPos) && isValidPosGrid(sndPos);
+        //System.out.println("fstvalue " + fstValue + "sndValue" + sndValue);
+
+        switch (playerId) {
+            case 0:
+                showCellOnGrid(fstPos, fstValue, imgVewsHuman);
+                showCellOnGrid(sndPos, sndValue, imgVewsHuman);
+                break;
+            case 1:
+                showCellOnGrid(fstPos, fstValue, imgVewsA1);
+                showCellOnGrid(sndPos, sndValue, imgVewsA1);
+                break;
+            case 2:
+                showCellOnGrid(fstPos, fstValue, imgVewsA2);
+                showCellOnGrid(sndPos, sndValue, imgVewsA2);
+                break;
+            case 3:
+                showCellOnGrid(fstPos, fstValue, imgVewsA3);
+                showCellOnGrid(sndPos, sndValue, imgVewsA3);
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    @Override
+    public void showCityCenter(Position pos, Cards value, int palyerID) {
+        showOnBorad(pos, value, palyerID);
+    }
+
+    /**
+     * shoe the given cards in the given position with given player id
+     *
+     * @param pos is given position to be displayed.
+     * @param value is the cards should be displayed
+     * @param PlayerID
+     */
+    private void showOnBorad(Position pos, Cards value, int PlayerID) {
+        if (isValidPosGrid(pos)) {
+            switch (PlayerID) {
+                case 0:
+                    showCellOnGrid(pos, value, imgVewsHuman);
+                    break;
+                case 1:
+                    showCellOnGrid(pos, value, imgVewsA1);
+                    break;
+                case 2:
+                    showCellOnGrid(pos, value, imgVewsA2);
+                    break;
+                case 3:
+                    showCellOnGrid(pos, value, imgVewsA3);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Shows the image with the given value at the given position on the game
+     * grid.(I have got help from last assignment)
+     *
+     * @param pos position on the game grid
+     * @param value value for which the image should be displayed at pos
+     */
+    private void showCellOnGrid(Position pos, Cards value, ImageView[][] imgView) {
+        //System.out.println(value);
+        if (isValidPosGrid(pos)) {
+            if (value == null) {
+                imgView[pos.x()][pos.y()].setImage(EMPTY_IMG);
+            } else {
+                switch (value) {
+                    case E:
+                        imgView[pos.x()][pos.y()].setImage(EMPTY_IMG);
+                        break;
+                    case CC:
+                        imgView[pos.x()][pos.y()].setImage(TOWN_HALL);
+                        break;
+                    default:
+                        imgView[pos.x()][pos.y()].setImage(getImage(value.ordinal()));
+                        break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void showInChooseBox(Domino dominoRotated) {
+        this.currDomino = dominoRotated;
+        this.pnSelected.getChildren().clear();
+        ImageView[] imgVwsSelected = new ImageView[]{new ImageView(), new ImageView()};
+        int idxFst = ID_F;
+        int idxSnd = ID_SND;
+        if (dominoRotated != null) {
+
+            GridPane grdSelected = new GridPane();
+            grdSelected.getColumnConstraints().add(this.getColConstraints());// for more fitting
+            grdSelected.getRowConstraints().add(this.getRowConstraints());
+
+            if (dominoRotated.getRotation() % 2 == 0) { //domino is horizontal 
+                grdSelected.getColumnConstraints().add(getColConstraints());
+
+                for (int i = 0; i <= 1; ++i) {
+                    grdSelected.add(imgVwsSelected[i], i, 0);
+                    imgVwsSelected[i].fitWidthProperty().bind(grdSelected.widthProperty().divide(2));
+                    imgVwsSelected[i].fitHeightProperty().bind(grdSelected.heightProperty());
+                    //imgVwsSelected[i].setRotate(0);
+                }
+                //imgVwsSelected[0].setRotate(90);
+                this.pnSelected.setLayoutX(17.0);
+                this.pnSelected.setLayoutY(66.0);
+                this.pnSelected.setPrefHeight(32.0);
+                this.pnSelected.setPrefWidth(97.0);
+                //setPnSelectedHorizontal();
+
+            } else {
+                grdSelected.getRowConstraints().add(this.getRowConstraints());
+
+                for (int i = 0; i <= 1; ++i) {
+                    grdSelected.add(imgVwsSelected[i], 0, i);
+                    imgVwsSelected[i].fitWidthProperty().bind(grdSelected.widthProperty());
+                    imgVwsSelected[i].fitHeightProperty().bind(grdSelected.heightProperty().divide(2));
+                    // imgVwsSelected[i].setRotate(90);
+
+                }
+                this.pnSelected.setLayoutX(66.0);
+                this.pnSelected.setLayoutY(17.0);
+                this.pnSelected.setPrefHeight(107.0);
+                this.pnSelected.setPrefWidth(42.0);
+
+                //setPnSelectedVertical();
+            }
+
+            if (dominoRotated.getRotation() >= 2) {
+                idxFst = ID_SND;
+                idxSnd = ID_F;
+            }
+
+            this.pnSelected.getChildren().add(grdSelected);
+            grdSelected.prefWidthProperty().bind(pnSelected.widthProperty());
+            grdSelected.prefHeightProperty().bind(pnSelected.heightProperty());
+
+            imgVwsSelected[idxFst].setImage(imgs[dominoRotated.getTile().getFst().ordinal()]);//check if its true or not
+            imgVwsSelected[idxSnd].setImage(imgs[dominoRotated.getTile().getSnd().ordinal()]);
+        } else {
+            imgVwsSelected[idxFst].setImage(EMPTY_IMG);//check if its true or not
+            imgVwsSelected[idxSnd].setImage(EMPTY_IMG);
+        }
+    }
+
+    @Override
+    public void showResult(String result, String name, int point) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Results");
+        alert.setHeaderText("Winner: " + name + " point " + point);
+        TextArea area = new TextArea("Points:  \n" + result);
+        area.setWrapText(true);
+        area.setEditable(false);
+        //alert.setContentText("Points:  \n" + result);
+        alert.getDialogPane().setExpandableContent(area);
+        alert.showAndWait();
+    }
+
+    /**
+     * Creates a new column constraints for a grid pane. The column has always
+     * the width of 100%.(from last semester assingment)
+     *
+     * @return new column constraints for grid pane
+     */
+    private ColumnConstraints getColConstraints() {
+        ColumnConstraints column = new ColumnConstraints();
+        column.setPercentWidth(100);
+        column.setHgrow(Priority.ALWAYS);
+        column.setMinWidth(10.0);
+        return column;
+    }
+
+    /**
+     * Creates a new row constraints for a grid pane. The row has always the
+     * height of 100%.(from last semester assingment)
+     *
+     * @return new row constraints for grid pane
+     */
+    private RowConstraints getRowConstraints() {
+        RowConstraints row = new RowConstraints();
+        row.setPercentHeight(100);
+        row.setVgrow(Priority.ALWAYS);
+        row.setMinHeight(10.0);
+        return row;
+    }
+
+    /**
+     * Highlights two cells (= place for a domino) on the game grid in green. I
+     * have got help from last assignment
+     *
+     * @param pos position of the top-left half of the domino.
+     */
+    protected void highlightDominoPosGreen(Position pos) {
+        ColorAdjust changeToGreen = new ColorAdjust();
+        changeToGreen.setHue(0.75);
+        changeToGreen.setSaturation(1.0);
+        changeToGreen.setBrightness(0.5);
+
+        addEffectToDominoPos(pos, changeToGreen);
+    }
+
+    /**
+     * Highlights two cells (= place for a domino) on the game grid in red. I
+     * have got help from last assignment
+     *
+     * @param pos position of the top-left half of the domino.
+     */
+    protected void highlightDominoPosRed(Position pos) {
+        ColorAdjust changeToGreen = new ColorAdjust();
+        changeToGreen.setSaturation(1.0);
+        changeToGreen.setBrightness(0.5);
+
+        addEffectToDominoPos(pos, changeToGreen);
+    }
+
+    /**
+     * Removes the highlight of a domino position on the game grid. I have got
+     * help from last assignment
+     *
+     * @param pos position of the top-left half of the domino.
+     */
+    protected void removeHighlightDominoPos(Position pos) {
+        addEffectToDominoPos(pos, null);
+    }
+
+    /**
+     * add effect to given position with given effect
+     *
+     * @param pos is the given position to de displayed the effect
+     * @param effect is the given effect
+     */
+    private void addEffectToDominoPos(Position pos, ColorAdjust effect) {
+        if (this.currDomino != null) {
+            this.imgVewsHuman[pos.x()][pos.y()].setEffect(effect);
+            if (this.currDomino.getRotation() % 2 == 0) {//horizental
+                this.imgVewsHuman[pos.x() + 1][pos.y()].setEffect(effect);
+            } else {
+                this.imgVewsHuman[pos.x()][pos.y() + 1].setEffect(effect);
+            }
+        }
+    }
+
+}

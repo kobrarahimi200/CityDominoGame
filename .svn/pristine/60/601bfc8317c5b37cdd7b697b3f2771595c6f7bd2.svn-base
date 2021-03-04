@@ -1,0 +1,29 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package logic;
+
+/**
+ *
+ * @author kobra
+ */
+public interface GUIConnector {
+    
+    
+     /**
+     * sets a domino to the players bank at index. Empties it if domino is null.
+     * @param index
+     * @param domino 
+     */
+    void setToNextBox(int index, Domino domino);
+     
+    /**
+     * shows the domino in the choose-box. Clears it if dominoRotated is null.
+     * @param dominoRotated
+     */
+    void showInChooseBox(Domino dominoRotated);
+    
+    
+}

@@ -1,0 +1,53 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package logic;
+
+/**
+ *
+ * @author kobra
+ */
+public enum Tiles {
+    ONE (Cards.P0 , Cards.P0),      ELEVEN (Cards.S0, Cards.S0),     TWENTY_ONE (Cards.P1, Cards.S0),    THIRTY_ONE (Cards.A1, Cards.P0),
+    TWO (Cards.P0 , Cards.P0),      TWELVE (Cards.O0, Cards.O0),     TWENTY_TWO (Cards.P1, Cards.O0),    THIRTY_TWO (Cards.A1, Cards.H0),
+    THREE (Cards.H0, Cards.H0),     THIRTEEN (Cards.P0, Cards.H0),   TWENTY_THREE (Cards.P1, Cards.I0),  THIRTY_TREE (Cards.A1, Cards.H0),
+    FOUR (Cards.H0, Cards.H0),      FOURTEEN (Cards.P0, Cards.A0),   TWENTY_FOUR (Cards.H1, Cards.P0),   THIRTY_FOUR (Cards.A1, Cards.H0),
+    FIVE (Cards.H0, Cards.H0),      FIFTEEN (Cards.P0, Cards.S0),    TWENTY_FIVE (Cards.H1, Cards.P0),   THIRTY_FIVE (Cards.A1, Cards.H0),
+    SIX (Cards.H0, Cards.H0),       SIXTEEN (Cards.P0, Cards.O0),    TWENTY_SIX (Cards.H1, Cards.P0),    THIRTY_SIX (Cards.P0, Cards.S1),
+    SEVEN (Cards.A0, Cards.A0),     SEVENTEEN (Cards.H0, Cards.A0),  TWENTY_SEVEN (Cards.H1, Cards.P0),  THIRTY_SEVEN (Cards.A0, Cards.S1),
+    EIGHT (Cards.A0, Cards.A0),     EIGHTTEEN (Cards.H0, Cards.S0),  TWENTY_EIGHT (Cards.H1, Cards.A0),  THIRTY_EIGHT (Cards.P0, Cards.O1),
+    NINE (Cards.A0, Cards.A0),      NINETEEN (Cards.P0, Cards.H0),   TWENTY_NINE (Cards.H1, Cards.S0),   THIRTY_NINE (Cards.S0, Cards.O1),
+    TEN (Cards.S0, Cards.S0),       TWENTY (Cards.P1, Cards.A0),     THIRTY (Cards.A1, Cards.P0),        FOURTY (Cards.I1, Cards.P0),
+    
+    FOURTY_ONE (Cards.P0, Cards.S2),
+    FOURTY_TWO (Cards.A0, Cards.S2),
+    FOURTY_THREE (Cards.P0, Cards.O2),
+    FOURTY_FOUR (Cards.S0, Cards.O2),
+    FOURTY_FIVE (Cards.I2, Cards.P0),
+    FOURTY_SIX (Cards.O0, Cards.I2),
+    FOURTY_SEVEN (Cards.O0, Cards.I2),
+    FOURTY_EIGHT (Cards.P0, Cards.I3);
+    
+   public static final int HIGHEST_VALUE = 48;
+    
+    
+    private final Cards fst;    
+    private final Cards snd;
+    
+    Tiles(Cards fst, Cards snd) {
+        this.fst = fst;
+        this.snd = snd;
+    }
+    
+    public Cards getFst() {
+        return fst;
+    }
+
+    public Cards getSnd() {
+        return snd;
+    }
+   
+    
+}

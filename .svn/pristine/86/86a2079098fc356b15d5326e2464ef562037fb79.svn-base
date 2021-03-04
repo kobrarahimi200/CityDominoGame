@@ -1,0 +1,9 @@
+Bot2 choose  S0O1 Bot2 put O0O0 horizontal to 0/2
+Human0 choose  P0A0 Human0 put P0A0 horizontal to 0/2
+Bot3 choose  P0O2 Bot3 put P1O0 horizontal to 0/2
+Bot1 choose  H0A0 Bot1 put P1I0 horizontal to 0/2
+Bot1 choose  P0I2 Bot1 put H0A0 horizontal to 1/1
+Bot2 choose  A1P0 Bot2 put S0O1 vertically to 0/0
+Human0 choose  A0S2 Human0 did not use A0S2
+Bot3 choose  A0A0 Bot3 put P0O2 horizontal to 0/1
+Bot3 choose  P0I1 Bot3 put A0A0 horizontal to 1/3

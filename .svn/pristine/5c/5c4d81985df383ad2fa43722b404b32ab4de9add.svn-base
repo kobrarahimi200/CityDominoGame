@@ -1,0 +1,141 @@
+
+package GUI;
+
+import javafx.scene.image.Image;
+import javafx.scene.layout.GridPane;
+
+/**
+ *
+ * @author kobra
+ */
+public class javaFXGUI {
+
+    protected static final Image EMPTY_IMG = new Image("IMG/Empty.png");
+    private final int IMG_COUNT = 24;
+    private static Image[] imgs;
+    private GridPane grdHuman;
+    private GridPane grdA1;
+    private GridPane grdA2;
+    private GridPane grdA3;
+
+    /**
+     * default constructor
+     * @param grdHuman is the human gird
+     * @param a1 is the first AI grid pane
+     * @param a2 is the second AI grid pane
+     * @param a3 is the third AI grid pane
+
+     */
+    public javaFXGUI(GridPane grdHuman ,GridPane a1,GridPane a2, GridPane a3 ){
+        this.grdHuman =grdHuman;
+        this.grdA1 = a1;
+        this.grdA2 = a2;
+        this.grdA3 = a3;
+        loadAllImg();
+        
+    }
+    /**
+     * Loads one image for one half of a domino tile.
+     *
+     * @param x the number of eyes; should be between 0 and 24, if is not the
+     * empty image will be returned
+     * @return image with appropriate number of eyes; empty image if there is
+     * not image available for desired number of eyes
+     */
+    private Image loadImage(int x) {
+        Image img = null;
+        switch (x) {
+            case 0:
+                img = new Image("IMG/Amusement_0.png");
+                break;
+            case 1:
+                img = new Image("IMG/Amusement_1.png");
+                break;
+            case 2:
+                img = new Image("IMG/Amusement_2.png");
+                break;
+            case 3:
+                img = new Image("IMG/Amusement_3.png");
+                break;
+            case 4:
+                img = new Image("IMG/Home_0.png");
+                break;
+            case 5:
+                img = new Image("IMG/Home_1.png");
+                break;
+            case 6:
+                img = new Image("IMG/Home_2.png");
+                break;
+            case 7:
+                img = new Image("IMG/Home_3.png");
+                break;
+            case 8:
+                img = new Image("IMG/Industry_0.png");
+                break;
+            case 9:
+                img = new Image("IMG/Industry_1.png");
+                break;
+            case 10:
+                img = new Image("IMG/Industry_2.png");
+                break;
+            case 11:
+                img = new Image("IMG/Industry_3.png");
+                break;
+            case 12:
+                img = new Image("IMG/Office_0.png");
+                break;
+            case 13:
+                img = new Image("IMG/Office_1.png");
+                break;
+            case 14:
+                img = new Image("IMG/Office_2.png");
+                break;
+            case 15:
+                img = new Image("IMG/Office_3.png");
+                break;
+            case 16:
+                img = new Image("IMG/Park_0.png");
+                break;
+            case 17:
+                img = new Image("IMG/Park_1.png");
+                break;
+            case 18:
+                img = new Image("IMG/Park_2.png");
+                break;
+            case 19:
+                img = new Image("IMG/Park_3.png");
+                break;
+            case 20:
+                img = new Image("IMG/Shopping_0.png");
+                break;
+            case 21:
+                img = new Image("IMG/Shopping_1.png");
+                break;
+            case 22:
+                img = new Image("IMG/Shopping_2.png");
+                break;
+            case 23:
+                img = new Image("IMG/Shopping_3.png");
+                break;
+            default:
+                img = EMPTY_IMG;
+                break;
+        }
+        return img;
+    }
+
+    /**
+     * load all image into the an array
+     */
+    private void loadAllImg() {
+        imgs = new Image[IMG_COUNT];
+        for (int i = 0; i < imgs.length; ++i) {
+            this.imgs[i] = this.loadImage(i);
+        }
+    }
+    
+   public static Image[] loadImg(){
+       return imgs;
+   }
+
+}

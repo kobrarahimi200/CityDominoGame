@@ -1,0 +1,66 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package logic;
+
+/**
+ *
+ * the players of the game
+ */
+public abstract class Players{
+    
+     private final String name;
+     private Tiles tile;
+     private Field field;
+     private boolean human ;
+     private boolean bot ;//TODO: ask this where should i define this? herre or in the bot class?
+    /**
+     * Creates a player with a given name.
+     *
+     * @param name name for the player
+     * @param field
+     */
+     Players(String name, Field field) {
+        this.name = name;
+        this.field = field;
+    }
+    
+     Players(String name, int x, int y) {
+        this.name = name;
+        this.field = new Field(x, y);
+    }
+    
+    /**
+     * Creates a player with a name and the given tile.
+     *
+     * @param name name for the player
+     * @param tile  for the player
+     */
+    Players(String name, Tiles tile) {// it means just in logic package is accessble
+        this.tile = tile; 
+        this.name = name;
+    }
+      /**
+     * Returns the name of the player
+     *
+     * @return name of the player
+     */
+    public String getName() {
+        return name;
+    }
+    /**
+     * return the chosen tile with current player
+     * @return 
+     */
+    protected Tiles getTile(){
+        return this.tile;
+    }
+    
+    
+    protected Field getField(){
+        return this.field;
+    }
+        
+}

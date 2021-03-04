@@ -1,0 +1,368 @@
+
+package logic;
+
+/**
+ *
+ * @author kobra
+ */
+public class Field {
+
+    /**
+     * value of an empty cell
+     */
+    public final static Cards EMPTY = Cards.E;
+    public final static Cards TOWNHALL = Cards.CC;
+    Position townHallPos = new Position((getCols() % 2 == 0) ? (getCols() / 2) - 1 : (getCols() / 2), (int) Math.ceil(getRows() / 2));
+
+    /**
+     * the board to play on
+     */
+    private final Cards[][] cells;
+    /**
+     * the gui to show the board on
+     */
+    GUIConnector gui;
+    
+    /**
+     * constructs the board given by string. The rows are seperated by "\n".
+     *
+     * @param card
+     */
+    Field(GUIConnector gui, Cards[][] card) {         
+        this.cells = card;//refrence to one array
+        this.gui = gui;
+        
+    }
+
+    /**
+     * creates a board of the given size.
+     *
+     * @param sizeX x-size of the board
+     * @param sizeY y-size of the board
+     */
+    public Field(int sizeX, int sizeY) {
+        cells = new Cards[sizeX][sizeY];
+        this.clear();
+    }
+
+    /**
+     * gets cells with their values
+     *
+     * @return the cells
+     */
+    Cards[][] getCells() {
+        return cells;
+    }
+
+    Cards getCard(Position pos){
+        return cells[pos.x()][pos.y()];
+    }
+    /**
+     * gets the count of columns
+     *
+     * @return the count of columns
+     */
+    public int getCols() {
+        return cells.length;
+    }
+
+    /**
+     * gets the count of rows
+     *
+     * @return count or rows
+     */
+    public int getRows() {
+        return cells[0].length;
+    }
+
+    /**
+     * clears the board
+     */
+    public void clear() {
+        for (int i = 0; i < getCols(); i++) {
+            for (int r = 0; r < getRows(); r++) {
+                cells[i][r] = EMPTY;
+            }
+        }
+    }
+
+    /**
+     * checks if x is a valid column on board.
+     *
+     * @param x to check
+     * @return true if x is a valid column on board
+     */
+    boolean isValidX(int x) {
+        if(x >= 0 && x < cells.length);
+           return true;
+    }
+
+    /**
+     * checks if y is a valid row on board.
+     *
+     * @param y to check
+     * @return true if y is a valid row on board
+     */
+    boolean isValidY(int y) {
+        return y >= 0 && y < cells[0].length;
+    }
+
+    /**
+     * checks if pos is a valid position on board.
+     *
+     * @param pos to check
+     * @return true if pos is a valid position on board
+     */
+    boolean isValidPos(Position pos) {
+        return isValidX(pos.x()) && isValidY(pos.y());
+    }
+
+    /**
+     * checks if this position is empty
+     *
+     * @param p to check
+     * @return true if the cell at this position is empty
+     */
+    boolean isEmpty(Position p) {
+        return cells[p.x()][p.y()] == EMPTY;
+    }
+
+    /**
+     * gets value of a cell.
+     *
+     * @param x
+     * @param y
+     * @return value of the cell
+     * @pre x and y have valid values
+     */
+    Cards getCell(int x, int y) {
+        assert isValidX(x);
+        assert isValidY(y);
+        return cells[x][y];
+    }
+
+    /**
+     * gets the value of the cell.
+     *
+     * @param pos position to look at
+     * @return
+     */
+    public Cards getCell(Position pos) {
+        return getCell(pos.x(), pos.y());
+    }
+
+    /**
+     * sets the first domino to the middle of the board. OpenEnds are set to the
+     * positions of the domino-halfs. The domino is shown on grid.
+     *
+     *
+     */
+    public void setStarter() {
+
+        int x = (getCols() % 2 == 0) ? (getCols() / 2) - 1 : (getCols() / 2);
+        int y = (int) Math.ceil(getRows() / 2);
+
+        Position posTownHall = new Position(x, y);
+        cells[posTownHall.x()][posTownHall.y()] = TOWNHALL;
+        //this.gui.showOnGrid(posFst, domino.getFst(), posSnd, domino.getSnd());
+
+    }
+
+    /**
+     * Counts the sides already occupied.
+     *
+     * @param pos position to check
+     * @return the sides already occupied
+     */
+    public int occupiedSides(Position pos) { // make it public just for testing
+        assert (pos != null);
+        assert (isValidPos(pos));
+        int sum = 0;
+        Position[] neighbors = pos.getNeighbours();
+        for (int i = 0; i < neighbors.length; i++) {
+            if (isValidPos(neighbors[i]) && !isEmpty(neighbors[i])) {
+                sum++;
+            }
+        }
+        return sum;
+    }
+
+    /**
+     * checks if domino fits at the given position. One of the dominos values
+     * must be side by side to an open end and have the same value. The domino
+     * must touch one open end with one of its halfs and mustnt touch another
+     * domino.
+     *
+     * @param domino domino to lay
+     * @param posFst position to lay firstHalf at
+     * @return true, if the domino fits
+     */
+    public boolean fits(Domino domino, Position posFst) {
+        assert (domino != null);
+        assert (posFst != null);
+        Position posSnd = domino.getSnd(posFst);
+        boolean isFit = false;
+        if (isValidPos(posFst) && isValidPos(posSnd)) {
+            Position[] neighbors = posFst.getNeighbours();
+            for (int i = 0; i < neighbors.length; i++) {
+                if ((touched(posFst) != null && touched(posFst).equals(townHallPos))
+                        || (touched(posSnd) != null && touched(posSnd).equals(townHallPos))) {
+                    isFit = true;
+                } else {
+                    if (touched(posFst) != null && touched(posFst).equals(neighbors[i])
+                            && domino.getFst() == getCell(neighbors[i])) {
+                        if (occupiedSides(posSnd) == 0) {
+                            isFit = true;
+                        }
+                    }
+                }
+                if (touched(posSnd) != null && touched(posSnd).equals(neighbors[i])
+                        && domino.getSnd() == getCell(neighbors[i])) {
+                    if (occupiedSides(posFst) == 0) {
+                        isFit = true;
+                    }
+                }
+            }
+
+        }
+        return isFit;
+    }
+
+    /**
+     * returns the position of the touched cell, null if less than one are
+     * touched.
+     *
+     * @param position
+     * @return the position of the touched cell, null if no or more than one are
+     * touched
+     *
+     * ///check it later in this method we have to check the points of given
+     * position and return the position with the highest value and also for the both
+     * position position First and second
+     */
+    public Position touched(Position position) {// make it public for test
+        assert (position != null);
+        assert (isValidPos(position));
+        Position[] neighbors = position.getNeighbours();
+        if (occupiedSides(position) >= 1 && occupiedSides(position) < 4) {//check if given pos toched more than one full cell
+            for (int i = 0; i < neighbors.length; i++) {
+                if (isValidPos(neighbors[i])) {
+                    return neighbors[i];
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * lays one domino on the board and displays it on gui.<br>
+     * First half stays on posFst. The values of the domino are put in the two
+     * cells. <br>
+     * The open end that is sticked to has to be set to the new open end.
+     *
+     * @param domino domino to lay
+     * @param posFst top left postion
+     * @pre openEnds must have been set before
+     */
+    public void lay(Domino domino, Position posFst) {
+        
+    }
+
+    /**
+     * try to put the domino on the board by setting it to each cell and
+     * rotating it clockwise. The board is proceeded line per line.
+     *
+     * @param domino domino to find valid position for
+     * @return the position the domino fits; null if no position fits
+     */
+    public Position findPosFor(Domino domino) {
+       return new Position(0, 0);
+    }
+
+    /**
+     * counting the score of each player
+     *
+     * @return
+     */
+    public int countPoint() {
+        int sumP =0 ;
+        int cellNumber = 0;
+        boolean isSame = false;
+         for (int i= 0 ; i < cells.length ; i++){
+              for (int j = 0 ; j < cells[i].length ; j++){
+                  Position[] neighbors = new Position(i ,j).getNeighbours();
+                  for (int k = 0 ; k < neighbors.length ; k++){    
+                      
+                  int ord = getCard(new Position(i, j)).ordinal();
+                  int neighborOrd = getCard(neighbors[k]).ordinal();
+                  
+                  if(ord >= 0 && ord <= 1 && neighborOrd >= 0  && neighborOrd <= 1){
+                      
+                    sumP += getCard(new Position(i, j)).getSymbol() + getCard(neighbors[k]).getSymbol();
+                    
+                  }
+                  else if(ord >= 2 && ord <= 3 && neighborOrd >= 2 && neighborOrd <= 3){
+                     isSame = true;
+                  }
+                  else if(ord >= 4 && ord <= 5 && neighborOrd >= 4 && neighborOrd <= 5){
+                     isSame = true;
+                  }
+                  else if(ord >= 6 && ord <= 8 && neighborOrd >= 6 && neighborOrd <= 8 ){
+                     isSame = true;
+                  }
+                   else if(ord >= 9 && ord<= 11 && neighborOrd >= 9 && neighborOrd<= 11){
+                     isSame = true;
+                  }
+                   else if(ord >= 12 && ord <= 15 && neighborOrd >= 12 && neighborOrd <= 15 ){
+                     isSame = true;
+                  }
+                  
+              }
+              }
+            }
+        
+        
+        return 0;
+    }
+    /**
+     * calculate the prestige for the given cards
+     * @param card
+     * @return 
+     */
+    public int prestige(Cards card){// just for testing make it public
+        return card.getSymbol();
+    }
+    
+    public boolean sameOrdinal(Position pos){
+        boolean isSame = false;
+        Position[] neighbors = pos.getNeighbours();
+        
+        for (int i= 0 ; i < cells.length ; i++){
+              for (int j = 0 ; j < cells[i].length ; j++){
+                  
+                  int ord = getCard(new Position(i, j)).ordinal();
+                  int neighborOrd = getCard(neighbors[i]).ordinal();
+                  if(ord >= 0 && ord <= 1 && neighborOrd >= 0  && neighborOrd <= 1){
+                    isSame = true;
+                  }
+                  else if(ord >= 2 && ord <= 3){
+                     isSame = true;
+                  }
+                  else if(ord >= 4 && ord <= 5){
+                     isSame = true;
+                  }
+                  else if(ord >= 6 && ord <= 8 ){
+                     isSame = true;
+                  }
+                   else if(ord >= 9 && ord<= 11){
+                     isSame = true;
+                  }
+                   else if(ord >= 12 && ord <= 15 ){
+                     isSame = true;
+                  }
+              }
+            }
+        return isSame;
+    }
+            
+}
